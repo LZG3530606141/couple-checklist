@@ -7,6 +7,7 @@ import { initialItems, categories as initialCategories } from './items.mjs';
   const escape = (text) => String(text ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const token = location.hash.slice(1);
   const cloud = window.SUPABASE_CONFIG && /^https:\/\/.+\.supabase\.co\/?$/.test(window.SUPABASE_CONFIG.url || '') && (window.SUPABASE_CONFIG.anonKey || '').length > 20;
+  const temporaryTunnel = /\.trycloudflare\.com$/i.test(location.hostname);
   const cloudBase = cloud ? window.SUPABASE_CONFIG.url.replace(/\/$/, '') : '';
   const cloudHeaders = cloud ? { apikey: window.SUPABASE_CONFIG.anonKey, Authorization: `Bearer ${window.SUPABASE_CONFIG.anonKey}`, 'Content-Type': 'application/json' } : {};
   const identityKey = `couple-identity-${token.slice(0, 12)}`;
@@ -290,7 +291,7 @@ import { initialItems, categories as initialCategories } from './items.mjs';
   }
   $('#shareButton').addEventListener('click', () => {
     if (!ui.state || !ui.meta) return toast('清单尚未连接');
-    if (cloud) {
+    if (cloud || temporaryTunnel) {
       $('#shareScope').textContent = '公网 · 可异地使用';
       $('#shareStorage').textContent = 'Supabase 云端';
       $('#shareCondition').textContent = '无需保持电脑开机';
@@ -405,6 +406,7 @@ import { initialItems, categories as initialCategories } from './items.mjs';
       $('#categorySelect').innerHTML = '<option value="all">全部分类</option>' + ui.meta.categories.map((category) => `<option value="${escape(category)}">${escape(category)}</option>`).join('');
       if (cloud) await rpc('ensure_couple_room', { p_room_key: token, p_items: initialItems.map(({ id, title, category }) => ({ id, title, category })) });
       applyState(await api('/api/state'));
+      connected(true);
       subscribe();
     } catch (error) {
       connected(false);
