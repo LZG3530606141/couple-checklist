@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f9f8">
+  <title>情侣打卡 100 件事</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23b94c60' d='M12 21S2 15 2 7a5 5 0 0 1 10-1 5 5 0 0 1 10 1c0 8-10 14-10 14'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./style.css">
+  <script src="./vendor/lucide.min.js" defer></script>
+  <script src="./config.js" defer></script>
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" id="home"><i data-lucide="heart"></i><span>两个人的清单</span></a>
+      <div class="header-actions">
+        <span id="syncStatus" class="sync-status" role="status">连接中</span>
+        <button class="icon-button" id="exportButton" data-export title="导出记录" aria-label="导出记录"><i data-lucide="download"></i></button>
+        <button class="profile-button" id="profileButton" title="两个人与当前身份" aria-label="两个人与当前身份"><i data-lucide="users"></i><span id="currentActor">我</span></button>
+        <button class="primary-button" id="shareButton"><i data-lucide="share-2"></i><span>邀请另一半</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow">OUR SHARED LIST</p>
+        <h1>情侣打卡 100 件事</h1>
+        <div class="couple-names"><span class="avatar avatar-a" id="avatarA">我</span><span id="nameA">我</span><span class="name-join">&</span><span class="avatar avatar-b" id="avatarB">T</span><span id="nameB">TA</span></div>
+      </div>
+      <div class="overall-progress">
+        <div class="progress-numbers"><span><strong id="completedCount">0</strong><span class="total"> / 100</span></span><span class="progress-label">件共同回忆</span></div>
+        <progress id="totalProgress" value="0" max="100" aria-label="总完成进度"></progress>
+        <div class="progress-caption"><span id="remainingCount">还有 100 件小事</span><span id="percent">0%</span></div>
+      </div>
+    </section>
+
+    <div class="workspace">
+      <section class="list-section" aria-label="打卡清单">
+        <div class="filters">
+          <div class="filter-top">
+            <div class="segments" role="group" aria-label="完成状态筛选">
+              <button data-filter="all" class="active" aria-pressed="true">全部 <span id="allCount">100</span></button>
+              <button data-filter="todo" aria-pressed="false">未完成 <span id="todoCount">100</span></button>
+              <button data-filter="done" aria-pressed="false">已完成 <span id="doneCount">0</span></button>
+            </div>
+            <button class="icon-button" id="randomButton" title="随机选一件未完成的事" aria-label="随机选一件未完成的事"><i data-lucide="shuffle"></i></button>
+          </div>
+          <div class="filter-bottom">
+            <label class="search"><i data-lucide="search"></i><input type="search" id="searchInput" placeholder="搜索小事、地点或记录" aria-label="搜索清单"></label>
+            <select id="categorySelect" aria-label="分类"><option value="all">全部分类</option></select>
+          </div>
+        </div>
+        <div class="list-caption"><span id="resultCount">100 件小事</span><span>我们的约定</span></div>
+        <div id="errorBanner" class="error-banner" hidden></div>
+        <div class="checklist" id="checklist"><div class="empty-state">正在加载清单…</div></div>
+      </section>
+
+      <aside class="sidebar">
+        <section class="side-section"><h2>按生活片段</h2><div id="categoryStats" class="category-stats"></div></section>
+        <section class="side-section"><h2>最近的回忆</h2><div id="recentMemories" class="recent-memories"><p class="muted">暂时还没有打卡</p></div></section>
+        <section class="side-section source-section">
+          <button class="source-button" id="sourceButton" title="查看原始清单"><img src="./reference.jpg" alt="情侣打卡100件事原始图片"><span><strong>最初的清单</strong><small>100 件事 · 原图</small></span><i data-lucide="arrow-up-right"></i></button>
+        </section>
+      </aside>
+    </div>
+    <footer class="footer"><span>我们 · 100 件事</span><span id="updatedFooter">尚无完成记录</span></footer>
+  </main>
+
+  <dialog id="detailDialog" aria-labelledby="detailTitle">
+    <form id="detailForm">
+      <div class="dialog-heading"><div><p class="eyebrow" id="detailMeta"></p><h2 id="detailTitle"></h2></div><button type="button" class="icon-button" data-close="detailDialog" title="关闭" aria-label="关闭"><i data-lucide="x"></i></button></div>
+      <div id="conflictBanner" class="error-banner" hidden></div>
+      <label class="done-field"><input type="checkbox" id="detailDone"><span>已一起完成</span></label>
+      <div class="form-columns"><label>日期<input type="date" id="detailDate"></label><label>地点<input type="text" id="detailPlace" maxlength="120" placeholder="在哪里"></label></div>
+      <label><span id="noteALabel">我的记录</span><textarea id="detailNoteA" rows="4" maxlength="2000" placeholder="关于这一天"></textarea></label>
+      <label><span id="noteBLabel">TA的记录</span><textarea id="detailNoteB" rows="4" maxlength="2000" placeholder="关于这一天"></textarea></label>
+      <div class="dialog-footer"><span class="muted" id="detailUpdated"></span><button type="submit" class="primary-button" id="saveDetail"><i data-lucide="check"></i>保存记录</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="profileDialog" aria-labelledby="profileTitle">
+    <form id="profileForm">
+      <div class="dialog-heading"><h2 id="profileTitle">我们两个人</h2><button type="button" class="icon-button" data-close="profileDialog" title="关闭" aria-label="关闭"><i data-lucide="x"></i></button></div>
+      <div class="form-columns"><label>第一位<input id="memberA" required maxlength="20" autocomplete="off"></label><label>第二位<input id="memberB" required maxlength="20" autocomplete="off"></label></div>
+      <fieldset><legend>当前身份</legend><div class="identity-options"><label><input type="radio" name="actor" value="a"><span id="actorNameA">我</span></label><label><input type="radio" name="actor" value="b"><span id="actorNameB">TA</span></label></div></fieldset>
+      <div class="dialog-footer"><button type="button" class="icon-button" data-export title="导出记录" aria-label="导出记录"><i data-lucide="download"></i></button><button type="submit" class="primary-button"><i data-lucide="check"></i>保存</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="shareDialog" aria-labelledby="shareTitle">
+    <div class="dialog-heading"><h2 id="shareTitle">邀请另一半</h2><button class="icon-button" data-close="shareDialog" title="关闭" aria-label="关闭"><i data-lucide="x"></i></button></div>
+    <dl class="share-facts"><div><dt>共享范围</dt><dd id="shareScope">同一 Wi-Fi / 局域网</dd></div><div><dt>数据位置</dt><dd id="shareStorage">当前电脑</dd></div><div><dt>服务条件</dt><dd id="shareCondition">电脑开机且服务运行中</dd></div><div><dt>编辑权限</dt><dd>持有邀请链接的双方</dd></div></dl>
+    <label id="addressLabel">共享地址<select id="addressSelect"></select></label>
+    <label>邀请链接<div class="copy-field"><input id="shareLink" readonly><button class="icon-button" id="copyLink" title="复制邀请链接" aria-label="复制邀请链接"><i data-lucide="copy"></i></button></div></label>
+    <div class="dialog-footer"><span class="muted">私人清单</span><button class="primary-button" id="nativeShare"><i data-lucide="send"></i>分享链接</button></div>
+  </dialog>
+
+  <dialog id="sourceDialog" class="source-dialog" aria-labelledby="sourceTitle"><div class="dialog-heading"><h2 id="sourceTitle">最初的清单</h2><button class="icon-button" data-close="sourceDialog" title="关闭" aria-label="关闭"><i data-lucide="x"></i></button></div><img src="./reference.jpg" alt="用户提供的情侣打卡100件事原图"></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
