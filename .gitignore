@@ -3,3 +3,5 @@ server.log
 server.error.log
 qa/
 config.js
+cloudflared.log
+cloudflared.error.log
