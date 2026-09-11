@@ -94,8 +94,8 @@ export async function startServer({ port = 8765, host = '0.0.0.0', dataDir = pat
         if (req.method === 'GET' && url.pathname === '/api/state') return json(res, 200, state);
         if (req.method === 'GET' && url.pathname === '/api/meta') {
           const addresses = Object.values(networkInterfaces()).flat()
-            .filter((n) => n.family === 'IPv4' && !n.internal && /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(n.address))
-            .map((n) => n.address).sort((a, b) => Number(b.startsWith('192.168.')) - Number(a.startsWith('192.168.')));
+            .filter((n) => n.family === 'IPv4' && !n.internal && (/^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(n.address) || (n.address.startsWith('100.') && Number(n.address.split('.')[1]) >= 64 && Number(n.address.split('.')[1]) <= 127)))
+            .map((n) => n.address).sort((a, b) => Number(b.startsWith('100.')) - Number(a.startsWith('100.')) || Number(b.startsWith('192.168.')) - Number(a.startsWith('192.168.')));
           return json(res, 200, { categories, addresses, port: server.address().port });
         }
         if (req.method === 'GET' && url.pathname === '/api/events') {
@@ -172,7 +172,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const app = await startServer({ port: Number(process.env.PORT || 8765) });
   console.log(`Local: http://localhost:${app.port}/#${app.token}`);
   for (const n of Object.values(networkInterfaces()).flat()) {
-    if (n.family === 'IPv4' && !n.internal && /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(n.address)) {
+    if (n.family === 'IPv4' && !n.internal && (/^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(n.address) || (n.address.startsWith('100.') && Number(n.address.split('.')[1]) >= 64 && Number(n.address.split('.')[1]) <= 127))) {
       console.log(`LAN: http://${n.address}:${app.port}/#${app.token}`);
     }
   }

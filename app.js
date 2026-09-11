@@ -280,6 +280,12 @@ import { initialItems, categories as initialCategories } from './items.mjs';
   function updateShareLink() {
     const base = ($('#addressSelect').value || new URL('.', location.href).href).replace(/\/$/, '');
     $('#shareLink').value = `${base}/?as=${actor === 'a' ? 'b' : 'a'}#${token}`;
+    if (!cloud) {
+      const tailscale = /^http:\/\/100\./.test(base);
+      $('#shareScope').textContent = tailscale ? 'Tailscale 私网 · 可异地使用' : '同一 Wi-Fi / 局域网';
+      $('#shareStorage').textContent = '当前电脑';
+      $('#shareCondition').textContent = tailscale ? '双方开启 Tailscale，电脑保持开机' : '电脑开机且服务运行中';
+    }
   }
   $('#shareButton').addEventListener('click', () => {
     if (!ui.state || !ui.meta) return toast('清单尚未连接');
